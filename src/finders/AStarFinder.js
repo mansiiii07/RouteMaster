@@ -18,11 +18,11 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  *     suboptimal paths, in order to speed up the search.
  */
 function AStarFinder(opt) {
-    opt = opt || {};
+    opt = opt || {};       //null coalescing operator, if value is null or undefined it gets set to default or {}
     this.allowDiagonal = opt.allowDiagonal;
     this.dontCrossCorners = opt.dontCrossCorners;
-    this.heuristic = opt.heuristic || Heuristic.manhattan;
-    this.weight = opt.weight || 1;
+    this.heuristic = opt.heuristic || Heuristic.manhattan; //here default is manhattan
+    this.weight = opt.weight || 1;  //weight?
     this.diagonalMovement = opt.diagonalMovement;
 
     if (!this.diagonalMovement) {
@@ -42,7 +42,7 @@ function AStarFinder(opt) {
     if (this.diagonalMovement === DiagonalMovement.Never) {
         this.heuristic = opt.heuristic || Heuristic.manhattan;
     } else {
-        this.heuristic = opt.heuristic || Heuristic.octile;
+        this.heuristic = opt.heuristic || Heuristic.octile;  //default is octile here 
     }
 }
 
@@ -52,7 +52,7 @@ function AStarFinder(opt) {
  *     end positions.
  */
 AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var openList = new Heap(function(nodeA, nodeB) {
+    var openList = new Heap(function(nodeA, nodeB) {   //what is Heap? nodeA, nodeB ?
             return nodeA.f - nodeB.f;
         }),
         startNode = grid.getNodeAt(startX, startY),
