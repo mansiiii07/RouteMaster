@@ -5,3 +5,4 @@ beautify play panel
 Multiple destinations
 dynamic grid size
 No result found display
+include backtrace inside the loop (A*), save the time
