@@ -53,13 +53,12 @@ function IDAStarFinder(opt) {
         }
     }
 
-    // When diagonal movement is allowed the manhattan heuristic is not
-    // admissible, it should be octile instead
     if (this.diagonalMovement === DiagonalMovement.Never) {
         this.heuristic = opt.heuristic || Heuristic.manhattan;
     } else {
         this.heuristic = opt.heuristic || Heuristic.octile;
     }
+
 }
 
 /**
@@ -68,22 +67,20 @@ function IDAStarFinder(opt) {
  *
  * @return {Array<Array<number>>} The path, including both start and
  *     end positions.
- */
-IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    // Used for statistics:
-    var nodesVisited = 0;
+*/
 
-    // Execution time limitation:
+IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
+
+    var visitedNode = 0;
+
     var startTime = new Date().getTime();
 
-    // Heuristic helper:
-    var h = function(a, b) {
-        return this.heuristic(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+    var h = function(a,b){
+        return this.heuristic(Math.abs(b.x-a.x), Math.abs(b.y-a.y));
     }.bind(this);
 
-    // Step cost from a to b:
-    var cost = function(a, b) {
-        return (a.x === b.x || a.y === b.y) ? 1 : Math.SQRT2;
+    var cost = function(a,b){
+        return (a.x===b.x || a.y===b.y)? 1 : Math.SQRT2 ;
     };
 
     /**
@@ -98,112 +95,72 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
      * @return {Object} either a number with the new optimal cut-off depth,
      * or a valid node instance, in which case a path was found.
      */
-    var search = function(node, g, cutoff, route, depth) {
-        nodesVisited++;
 
-        // Enforce timelimit:
-        if (this.timeLimit > 0 &&
-            new Date().getTime() - startTime > this.timeLimit * 1000) {
-            // Enforced as "path-not-found".
-            return Infinity;
-        }
+    var search = function(node, g, cutoff, route, depth){
+         visitedNode++;
 
-        var f = g + h(node, end) * this.weight;
+         if(this.timeLimit > 0 &&
+            new Date().getTime() - startTime > this.timeLimit*1000) return Infinity;
 
-        // We've searched too deep for this iteration.
-        if (f > cutoff) {
-            return f;
-        }
+         var f = g + h(node, end)*this.weight;
 
-        if (node == end) {
-            route[depth] = [node.x, node.y];
-            return node;
-        }
+         if(f> cutoff) return f;
 
-        var min, t, k, neighbour;
+         if(node == end) {
+             route[depth] = [node.x, node.y];
+             return node;
+         }
 
-        var neighbours = grid.getNeighbors(node, this.diagonalMovement);
+         var neighbor, neighbors, i, min, t;
 
-        // Sort the neighbours, gives nicer paths. But, this deviates
-        // from the original algorithm - so I left it out.
-        //neighbours.sort(function(a, b){
-        //    return h(a, end) - h(b, end);
-        //});
+         neighbors = grid.getNeighbors(node, this.diagonalMovement);
 
-        
-        /*jshint -W084 *///Disable warning: Expected a conditional expression and instead saw an assignment
-        for (k = 0, min = Infinity; neighbour = neighbours[k]; ++k) {
-        /*jshint +W084 *///Enable warning: Expected a conditional expression and instead saw an assignment
-            if (this.trackRecursion) {
-                // Retain a copy for visualisation. Due to recursion, this
-                // node may be part of other paths too.
-                neighbour.retainCount = neighbour.retainCount + 1 || 1;
+//       for(i=0;i<neighbors.length;++i)
+         for(i=0, min=Infinity; neighbor = neighbors[i];
+            ++i){
+              
+              if(this.trackRecursion){
 
-                if(neighbour.tested !== true) {
-                    neighbour.tested = true;
-                }
-            }
+                  neighbor.retainCount = neighbor.retainCount +1 || 1;
 
-            t = search(neighbour, g + cost(node, neighbour), cutoff, route, depth + 1);
+                  if(neighbor.tested !== true){ neighbor.tested = true;}
+              }
 
-            if (t instanceof Node) {
-                route[depth] = [node.x, node.y];
+              t = search(neighbor, g+cost(node,neighbor), cutoff, route, depth+1);
 
-                // For a typical A* linked list, this would work:
-                // neighbour.parent = node;
-                return t;
-            }
+              if(t instanceof Node){
+                  route[depth] = [node.x, node.y];
+                  return t;
+              }
 
-            // Decrement count, then determine whether it's actually closed.
-            if (this.trackRecursion && (--neighbour.retainCount) === 0) {
-                neighbour.tested = false;
-            }
+              if(this.trackRecursion && (--neighbor.retainCount) === 0)  { neighbor.tested = false;}
 
-            if (t < min) {
-                min = t;
-            }
-        }
+              if(t< min) { min = t;}
 
-        return min;
+         }
 
+         return min;
     }.bind(this);
 
-    // Node instance lookups:
     var start = grid.getNodeAt(startX, startY);
-    var end   = grid.getNodeAt(endX, endY);
+    var end = grid.getNodeAt(endX, endY);
 
-    // Initial search depth, given the typical heuristic contraints,
-    // there should be no cheaper route possible.
-    var cutOff = h(start, end);
+    var route, cutoff = h(start, end), j, t;
 
-    var j, route, t;
+    for(j=0; true; j++){
+       route = [];
 
-    // With an overflow protection.
-    for (j = 0; true; ++j) {
+       t = search(start, 0, cutoff, route, 0);
 
-        route = [];
+       if(t === Infinity) return [];
 
-        // Search till cut-off depth:
-        t = search(start, 0, cutOff, route, 0);
+       if(t instanceof Node) return route;
 
-        // Route not possible, or not found in time limit.
-        if (t === Infinity) {
-            return [];
-        }
-
-        // If t is a node, it's also the end node. Route is now
-        // populated with a valid path to the end node.
-        if (t instanceof Node) {
-            return route;
-        }
-
-        // Try again, this time with a deeper cut-off. The t score
-        // is the closest we got to the end node.
-        cutOff = t;
+       cutoff = t;
     }
 
-    // This _should_ never to be reached.
     return [];
-};
+ };
+
 
 module.exports = IDAStarFinder;
