@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>PathFinding.js</title>
+    <title>Mars Curiosity Rover</title>
 
     <link rel="stylesheet" href="./visual/css/style.css" />
     <link rel="stylesheet" href="./visual/lib/themes/jquery.ui.all.css" />
@@ -20,7 +20,7 @@
     <script type="text/javascript" src="./visual/lib/ui/jquery.ui.accordion.min.js"></script>
     <script type="text/javascript" src="./visual/lib/ui/jquery.ui.slider.min.js"></script>
 
-    <script type="text/javascript" src="./visual/lib/pathfinding-browser.min.js"></script>
+    <script type="text/javascript" src="dist/pathfinding.bundle.js"></script>
 
     <script type="text/javascript" src="./visual/js/view.js"></script>
     <script type="text/javascript" src="./visual/js/controller.js"></script>
@@ -36,11 +36,15 @@
         <span id="hide_instructions">hide</span>
       </header>
       Click within the <span class="white">white</span> grid and drag your mouse to draw obstacles. <br>
-      Drag the <span class="green">green</span> node to set the start position. <br>
-      Drag the <span class="red">red</span> node to set the end position. <br>
+      Drag the <span class="green">rover symbol</span> to set the start position. <br>
+      Drag the <span class="red">destination (flag)</span> to set the end position. <br>
       Choose an algorithm from the right-hand panel. <br>
-      Click Start Search in the lower-right corner to start the animation.
+      Explore a fun feature by selecting <span style="color:rgb(26, 213, 226);">"Race between rovers"</span> category! <br>
+      Choose the number of destinations from the panel below.<br>
+      Change node size by entering a number between 50 and 250 at "Node Size" panel.
     </div>
+
+    <div id="WelcomeMsg" class = "show">Welcome!! <br>Find the shortest path from rover to destination.</div>
 
     <div id="algorithm_panel" class="panel right_panel">
       <header><h2 class="header_title">Select Algorithm</h2></header>
@@ -102,8 +106,6 @@
             <label class="option_label">Don't Cross Corners</label> <br>
             <input class="spinner" name="astar_weight" value="1">
             <label class="option_label">Weight</label> <br>
-            <input class="spinner" name="time_limit" value="10">
-            <label class="option_label">Seconds limit</label> <br>
             <input type="checkbox" class="track_recursion" checked />
             <label class="option_label">Visualize recursion</label> <br>
           </div>
@@ -225,10 +227,47 @@
       <button id="button3" class="control_button">Clear Walls</button>
     </div>
 
+    <div id = "NoOfDest" class = "panel">
+     <header><h2 class = "header_title">No. of destinations</h2></header>
+        <div id="Ndest" class="options">
+            <input type="radio" name="dest" id="default" value="One" checked />
+            <label class="option_label">1</label>
+            <input type="radio" name="dest" value="Two"/>
+            <label class="option_label">2</label> <br>
+			      <input type="radio" name="dest" value="Three"/>
+            <label class="option_label">3</label>
+            <input type="radio" name="dest" value="Four"/>
+            <label class="option_label">4</label> <br>
+         </div>
+     <button id="button4" class="control_button" style="width: 80px;">Set dest</button>
+    </div>
+
+    <div id = "NodeSize" class = "panel">
+     <header><h2 class = "header_title">Node Size</h2></header>
+     <div id="Ndest" class="options">
+         <input id = "Node_size" type="text" name="nodesize" style="width: 50px;" value="100"/>
+         <label class="option_label">%</label>
+      </div>
+     <button id="button5" class="control_button" style="width: 80px;" >Change</button>
+    </div>
+
+    <div id = "RoverRace" class = "panel">
+     <header><h2 class = "header_title">Select the category</h2></header>
+	    <div id="sType" class="options">
+	        <input type="radio" name="stype" id="path" value="0zero" checked />
+            <label class="option_label">Shortest path</label> <br>
+            <input type="radio" name="stype" value="1one"/>
+            <label class="option_label">Race between rovers</label> <br>
+		</div>
+     <button id="button6" class="control_button">Set</button>
+    </div>
+
+    <div id="WinMsg"></div>
+
     <div id="stats"></div>
 
-    <footer>
-      Project Hosted on <a href="https://mansiiii07.github.io/RouteMaster/">Github</a>
+    <footer id="footer">
+      Project Hosted on <a href="https://github.com/mansiiii07/RouteMaster">Github</a>
     </footer>
 
   </body>
