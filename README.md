@@ -1,6 +1,5 @@
 # RouteMaster
-
-[RouteMaster](https://mansiiii07.github.io/RouteMaster/) is a web application designed to provide an intuitive and efficient route management experience. It allows users to plan and manage routes with ease, making it ideal for travel, logistics, and any scenario where route optimization is key.
+RouteMaster is a web application designed to provide an intuitive and efficient route management experience. It allows users to plan and manage routes with ease, making it ideal for travel, logistics, and any scenario where route optimization is key.
 
 ## Features
 
